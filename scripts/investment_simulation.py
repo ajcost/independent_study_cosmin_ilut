@@ -1,37 +1,3 @@
-from dataclasses import dataclass, field
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.interpolate import interp1d
-from scipy.optimize import minimize_scalar, brentq
-from scipy.spatial.distance import cdist
-from scipy.special import softmax
-import quantecon as qe
-# ==========================================
-# 1. PARAMETERS DATACLASS
-# ==========================================
-@dataclass
-class InvestmentParameters:
-    # Economic Parameters
-    ALPHA: float = 0.33
-    DELTA: float = 0.10
-    R: float = 0.04
-    
-    # These will be set based on the scenario
-    KAPPA: float = 0.0      # Adjustment cost parameter
-    RHO: float = 0.9        # Persistence
-    SIGMA_EPS: float = 0.0  # Volatility (0 = Deterministic)
-
-    # Grid Parameters
-    N_k: int = 100
-    N_z: int = 5            # Number of shock states (if stochastic)
-    K_min: float = 0.1
-    K_max: float = 20.0
-
-    # Calculated post-init
-    BETA: float = field(init=False)
-
-    def __post_init__(self):
-        self.BETA = 1 / (1 + self.R)
 
 # ==========================================
 # 2. SIMULATION MODEL CLASS
