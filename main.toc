@@ -1,0 +1,23 @@
+\contentsline {section}{\numberline {1}Setup}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Agent's Beliefs}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Learning Process}{3}{subsection.1.2}%
+\contentsline {subsubsection}{\numberline {1.2.1}Experience-Based Learning}{4}{subsubsection.1.2.1}%
+\contentsline {paragraph}{Noise in Experience Signal}{4}{section*.2}%
+\contentsline {subsubsection}{\numberline {1.2.2}An Example of Experience-Based Learning in a Two-Period Model}{5}{subsubsection.1.2.2}%
+\contentsline {subsubsection}{\numberline {1.2.3}An Example of Experience-Based Learning in Infinite-Horizon Model}{7}{subsubsection.1.2.3}%
+\contentsline {paragraph}{TD Error.}{7}{section*.3}%
+\contentsline {paragraph}{Posterior Update.}{8}{section*.4}%
+\contentsline {paragraph}{Kernel Evaluations.}{9}{section*.5}%
+\contentsline {subsubsection}{\numberline {1.2.4}Learning Through Reasoning}{10}{subsubsection.1.2.4}%
+\contentsline {subsection}{\numberline {1.3}Action Selection}{10}{subsection.1.3}%
+\contentsline {subsubsection}{\numberline {1.3.1}The Optimal Policy Decision}{11}{subsubsection.1.3.1}%
+\contentsline {subsubsection}{\numberline {1.3.2}The Reasoning Decision}{11}{subsubsection.1.3.2}%
+\contentsline {paragraph}{Reverse Water Filling.}{12}{section*.6}%
+\contentsline {section}{\numberline {2}Investment Problem}{14}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Simplifications}{14}{subsection.2.1}%
+\contentsline {paragraph}{Base Case: Linear Utility, No Shocks.}{14}{section*.7}%
+\contentsline {paragraph}{Adding Idiosyncratic Shocks.}{15}{section*.8}%
+\contentsline {paragraph}{Non-Linear Utility.}{15}{section*.9}%
+\contentsline {subsection}{\numberline {2.2}Investment Problem Under Learning Through Reasoning and Experience}{15}{subsection.2.2}%
+\contentsline {section}{\numberline {A}Derivation and Proofs}{16}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Derivation of Optimal Action Policy Proposition \ref {prop:optimal_policy}}{16}{subsection.A.1}%

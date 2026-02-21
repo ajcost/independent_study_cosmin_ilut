@@ -1,0 +1,133 @@
+# =========================
+# OS-Specific
+# =========================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.manifest
+*.spec
+
+# Virtual environments
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Pipenv
+Pipfile.lock
+
+# Poetry
+poetry.lock
+
+# PyInstaller
+*.spec
+
+# =========================
+# Jupyter Notebooks
+# =========================
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# Jupyter runtime files
+~/.local/share/jupyter/runtime/
+
+# =========================
+# Data Files
+# =========================
+*.csv
+*.tsv
+*.dat
+*.data
+*.log
+*.sql
+*.db
+*.sqlite
+*.h5
+*.hdf5
+*.feather
+*.parquet
+*.pkl
+*.joblib
+*.npy
+*.npz
+
+# Images
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+
+# Large raw datasets
+data/raw/
+data/interim/
+
+# =========================
+# Logs and Reports
+# =========================
+*.log
+*.out
+*.err
+
+# VSCode / IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# =========================
+# Notebooks Output
+# =========================
+*.out
+*.pdf
+*.tex
+
+# =========================
+# Docs and HTML
+# =========================
+docs/_build/
+docs/_static/
+docs/_templates/
+*.html
+*.doctree
+*.pickle
+*.inv
+*.tex
+*.pdf
+
+# =========================
+# Miscellaneous
+# =========================
+# Custom folders (edit as needed)
+tmp/
+archive/
+experiments/
+scratchpad/
+notes/
+
+# Sphinx documentation
+/docs/_build/
+/docs/generated/
