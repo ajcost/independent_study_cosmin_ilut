@@ -1,0 +1,266 @@
+\begin{thebibliography}{30}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Abel and Eberly(1996)]{AbelEberly1996}
+Andrew~B. Abel and Janice~C. Eberly.
+\newblock Optimal investment with costly reversibility.
+\newblock \emph{The Review of Economic Studies}, 63\penalty0 (4):\penalty0
+  581--593, 1996.
+\newblock ISSN 00346527, 1467937X.
+\newblock URL \url{http://www.jstor.org/stable/2297794}.
+
+\bibitem[Asker et~al.(2014)Asker, Collard-Wexler, and
+  Loecker]{AskerCollardWexlerDeLoecker2014}
+John Asker, Allan Collard-Wexler, and Jan~De Loecker.
+\newblock Dynamic inputs and resource (mis)allocation.
+\newblock \emph{Journal of Political Economy}, 122\penalty0 (5):\penalty0
+  1013--1063, 2014.
+\newblock ISSN 00223808, 1537534X.
+\newblock URL \url{http://www.jstor.org/stable/10.1086/677072}.
+
+\bibitem[Bachmann and Bayer(2013)]{BachmannBayer2013}
+RÃ¼diger Bachmann and Christian Bayer.
+\newblock â€˜wait-and-seeâ€™ business cycles?
+\newblock \emph{Journal of Monetary Economics}, 60\penalty0 (6):\penalty0
+  704--719, None 2013.
+\newblock \doi{10.1016/j.jmoneco.2013.05.005}.
+\newblock URL
+  \url{https://ideas.repec.org/a/eee/moneco/v60y2013i6p704-719.html}.
+
+\bibitem[Bachmann and Bayer(2014)]{BachmannBayer2014}
+Rüdiger Bachmann and Christian Bayer.
+\newblock Investment dispersion and the business cycle.
+\newblock \emph{American Economic Review}, 104\penalty0 (4):\penalty0
+  1392–1416, April 2014.
+\newblock \doi{10.1257/aer.104.4.1392}.
+\newblock URL \url{https://www.aeaweb.org/articles?id=10.1257/aer.104.4.1392}.
+
+\bibitem[Bartelsman et~al.(2013)Bartelsman, Haltiwanger, and
+  Scarpetta]{BartelsmanHaltiwangerScarpetta2013}
+Eric Bartelsman, John Haltiwanger, and Stefano Scarpetta.
+\newblock Cross-country differences in productivity: The role of allocation and
+  selection.
+\newblock \emph{American Economic Review}, 103\penalty0 (1):\penalty0 305–34,
+  February 2013.
+\newblock \doi{10.1257/aer.103.1.305}.
+\newblock URL \url{https://www.aeaweb.org/articles?id=10.1257/aer.103.1.305}.
+
+\bibitem[Bloom(2009)]{Bloom2009}
+Nicholas Bloom.
+\newblock The impact of uncertainty shocks.
+\newblock \emph{Econometrica}, 77\penalty0 (3):\penalty0 623--685, 2009.
+\newblock \doi{https://doi.org/10.3982/ECTA6248}.
+\newblock URL \url{https://onlinelibrary.wiley.com/doi/abs/10.3982/ECTA6248}.
+
+\bibitem[Bloom et~al.(2007)Bloom, Bond, and Van~Reenen]{BloomBondVanReenen2007}
+Nick Bloom, Stephen Bond, and John Van~Reenen.
+\newblock Uncertainty and investment dynamics.
+\newblock \emph{The Review of Economic Studies}, 74\penalty0 (2):\penalty0
+  391--415, 04 2007.
+\newblock ISSN 0034-6527.
+\newblock \doi{10.1111/j.1467-937X.2007.00426.x}.
+\newblock URL \url{https://doi.org/10.1111/j.1467-937X.2007.00426.x}.
+
+\bibitem[Buera et~al.(2011)Buera, Kaboski, and Shin]{BueraKaboskiShin2011}
+Francisco~J. Buera, Joseph~P. Kaboski, and Yongseok Shin.
+\newblock Finance and development: A tale of two sectors.
+\newblock \emph{American Economic Review}, 101\penalty0 (5):\penalty0
+  1964–2002, August 2011.
+\newblock \doi{10.1257/aer.101.5.1964}.
+\newblock URL \url{https://www.aeaweb.org/articles?id=10.1257/aer.101.5.1964}.
+
+\bibitem[Caballero and Engel(1999)]{CaballeroEngel1999}
+Ricardo~J. Caballero and Eduardo M. R.~A. Engel.
+\newblock Explaining investment dynamics in u.s. manufacturing: A generalized
+  (s, s) approach.
+\newblock \emph{Econometrica}, 67\penalty0 (4):\penalty0 783--826, 1999.
+\newblock \doi{https://doi.org/10.1111/1468-0262.00053}.
+\newblock URL
+  \url{https://onlinelibrary.wiley.com/doi/abs/10.1111/1468-0262.00053}.
+
+\bibitem[Cooper et~al.(1999)Cooper, Haltiwanger, and
+  Power]{CooperHaltiwanger1999}
+Russell Cooper, John Haltiwanger, and Laura Power.
+\newblock Machine replacement and the business cycle: Lumps and bumps.
+\newblock \emph{The American Economic Review}, 89\penalty0 (4):\penalty0
+  921--946, 1999.
+\newblock ISSN 00028282.
+\newblock URL \url{http://www.jstor.org/stable/117165}.
+
+\bibitem[Cooper and Haltiwanger(2006)]{CooperHaltiwanger2006}
+Russell~W. Cooper and John~C. Haltiwanger.
+\newblock On the nature of capital adjustment costs.
+\newblock \emph{The Review of Economic Studies}, 73\penalty0 (3):\penalty0
+  611--633, 07 2006.
+\newblock ISSN 0034-6527.
+\newblock \doi{10.1111/j.1467-937X.2006.00389.x}.
+\newblock URL \url{https://doi.org/10.1111/j.1467-937X.2006.00389.x}.
+
+\bibitem[David and Venkateswaran(2019)]{DavidVenkateswaran2019}
+Joel~M. David and Venky Venkateswaran.
+\newblock The sources of capital misallocation.
+\newblock \emph{American Economic Review}, 109\penalty0 (7):\penalty0
+  2531–67, July 2019.
+\newblock \doi{10.1257/aer.20180336}.
+\newblock URL \url{https://www.aeaweb.org/articles?id=10.1257/aer.20180336}.
+
+\bibitem[David et~al.(2016)David, Hopenhayn, and
+  Venkateswaran]{DavidHopenhaynVenkateswaran2016}
+Joel~M. David, Hugo~A. Hopenhayn, and Venky Venkateswaran.
+\newblock Information, misallocation, and aggregate productivity *.
+\newblock \emph{The Quarterly Journal of Economics}, 131\penalty0 (2):\penalty0
+  943--1005, 02 2016.
+\newblock ISSN 0033-5533.
+\newblock \doi{10.1093/qje/qjw006}.
+\newblock URL \url{https://doi.org/10.1093/qje/qjw006}.
+
+\bibitem[Deisenroth and Rasmussen(2011)]{DeisenrothRasmussen2011}
+Marc~Peter Deisenroth and Carl~Edward Rasmussen.
+\newblock Pilco: a model-based and data-efficient approach to policy search.
+\newblock In \emph{Proceedings of the 28th International Conference on
+  International Conference on Machine Learning}, ICML'11, page 465–472,
+  Madison, WI, USA, 2011. Omnipress.
+\newblock ISBN 9781450306195.
+
+\bibitem[Doms and Dunne(1998)]{DomsDunne1998}
+Mark Doms and Timothy Dunne.
+\newblock Capital adjustment patterns in manufacturing plants.
+\newblock \emph{Review of Economic Dynamics}, 1\penalty0 (2):\penalty0
+  409--429, 1998.
+\newblock ISSN 1094-2025.
+\newblock \doi{https://doi.org/10.1006/redy.1998.0011}.
+\newblock URL
+  \url{https://www.sciencedirect.com/science/article/pii/S1094202598900114}.
+
+\bibitem[Hsieh and Klenow(2009)]{HsiehKlenow2009}
+Chang-Tai Hsieh and Peter~J. Klenow.
+\newblock Misallocation and manufacturing tfp in china and india.
+\newblock \emph{The Quarterly Journal of Economics}, 124\penalty0 (4):\penalty0
+  1403--1448, None 2009.
+\newblock \doi{None}.
+\newblock URL
+  \url{https://ideas.repec.org/a/oup/qjecon/v124y2009i4p1403-1448..html}.
+
+\bibitem[Ilut and Valchev(2022)]{IlutValchev2023}
+Cosmin Ilut and Rosen Valchev.
+\newblock Economic agents as imperfect problem solvers*.
+\newblock \emph{The Quarterly Journal of Economics}, 138\penalty0 (1):\penalty0
+  313--362, 07 2022.
+\newblock ISSN 0033-5533.
+\newblock \doi{10.1093/qje/qjac027}.
+\newblock URL \url{https://doi.org/10.1093/qje/qjac027}.
+
+\bibitem[Khan and Thomas(2008)]{KhanThomas2008}
+Aubhik Khan and Julia~K. Thomas.
+\newblock Idiosyncratic shocks and the role of nonconvexities in plant and
+  aggregate investment dynamics.
+\newblock \emph{Econometrica}, 76\penalty0 (2):\penalty0 395--436, 2008.
+\newblock \doi{https://doi.org/10.1111/j.1468-0262.2008.00837.x}.
+\newblock URL
+  \url{https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1468-0262.2008.00837.x}.
+
+\bibitem[Malmendier and Nagel(2011)]{MalmendierNagel2011}
+Ulrike Malmendier and Stefan Nagel.
+\newblock Depression babies: Do macroeconomic experiences affect risk taking?*.
+\newblock \emph{The Quarterly Journal of Economics}, 126\penalty0 (1):\penalty0
+  373--416, 02 2011.
+\newblock ISSN 0033-5533.
+\newblock \doi{10.1093/qje/qjq004}.
+\newblock URL \url{https://doi.org/10.1093/qje/qjq004}.
+
+\bibitem[Malmendier and Tate(2005)]{MalmendierTate2005}
+Ulrike Malmendier and Geoffrey Tate.
+\newblock Ceo overconfidence and corporate investment.
+\newblock \emph{The Journal of Finance}, 60\penalty0 (6):\penalty0 2661--2700,
+  2005.
+\newblock \doi{https://doi.org/10.1111/j.1540-6261.2005.00813.x}.
+\newblock URL
+  \url{https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.2005.00813.x}.
+
+\bibitem[Malmendier and Tate(2015)]{MalmendierTateYan2011}
+Ulrike Malmendier and Geoffrey Tate.
+\newblock Behavioral ceos: The role of managerial overconfidence.
+\newblock \emph{Journal of Economic Perspectives}, 29\penalty0 (4):\penalty0
+  37–60, November 2015.
+\newblock \doi{10.1257/jep.29.4.37}.
+\newblock URL \url{https://www.aeaweb.org/articles?id=10.1257/jep.29.4.37}.
+
+\bibitem[Midrigan and Xu(2014)]{MidriganXu2014}
+Virgiliu Midrigan and Daniel~Yi Xu.
+\newblock Finance and misallocation: Evidence from plant-level data.
+\newblock \emph{American Economic Review}, 104\penalty0 (2):\penalty0 422–58,
+  February 2014.
+\newblock \doi{10.1257/aer.104.2.422}.
+\newblock URL \url{https://www.aeaweb.org/articles?id=10.1257/aer.104.2.422}.
+
+\bibitem[Moll(2014)]{Moll2014}
+Benjamin Moll.
+\newblock Productivity losses from financial frictions: Can self-financing undo
+  capital misallocation?
+\newblock \emph{American Economic Review}, 104\penalty0 (10):\penalty0
+  3186–3221, October 2014.
+\newblock \doi{10.1257/aer.104.10.3186}.
+\newblock URL \url{https://www.aeaweb.org/articles?id=10.1257/aer.104.10.3186}.
+
+\bibitem[Restuccia and Rogerson(2008)]{RestucciaRogerson2008}
+Diego Restuccia and Richard Rogerson.
+\newblock Policy distortions and aggregate productivity with heterogeneous
+  establishments.
+\newblock \emph{Review of Economic Dynamics}, 11\penalty0 (4):\penalty0
+  707--720, 2008.
+\newblock ISSN 1094-2025.
+\newblock \doi{https://doi.org/10.1016/j.red.2008.05.002}.
+\newblock URL
+  \url{https://www.sciencedirect.com/science/article/pii/S1094202508000203}.
+
+\bibitem[Russo and Roy(2014)]{RussoVanRoy2014}
+Daniel Russo and Benjamin~Van Roy.
+\newblock Learning to optimize via posterior sampling, 2014.
+\newblock URL \url{https://arxiv.org/abs/1301.2609}.
+
+\bibitem[Russo and Roy(2017)]{RussoVanRoy2017}
+Daniel Russo and Benjamin~Van Roy.
+\newblock Learning to optimize via information-directed sampling, 2017.
+\newblock URL \url{https://arxiv.org/abs/1403.5556}.
+
+\bibitem[Sims(2003)]{Sims2003}
+Christopher~A. Sims.
+\newblock Implications of rational inattention.
+\newblock \emph{Journal of Monetary Economics}, 50\penalty0 (3):\penalty0
+  665--690, 2003.
+\newblock ISSN 0304-3932.
+\newblock \doi{https://doi.org/10.1016/S0304-3932(03)00029-1}.
+\newblock URL
+  \url{https://www.sciencedirect.com/science/article/pii/S0304393203000291}.
+\newblock Swiss National Bank/Study Center Gerzensee Conference on Monetary
+  Policy under Incomplete Information.
+
+\bibitem[Sraer and Thesmar(2023)]{SraerThesmar2023}
+David Sraer and David Thesmar.
+\newblock How to use natural experiments to estimate misallocation.
+\newblock \emph{American Economic Review}, 113\penalty0 (4):\penalty0 906–38,
+  April 2023.
+\newblock \doi{10.1257/aer.20190609}.
+\newblock URL \url{https://www.aeaweb.org/articles?id=10.1257/aer.20190609}.
+
+\bibitem[Winberry(2021)]{Winberry2021}
+Thomas Winberry.
+\newblock Lumpy investment, business cycles, and stimulus policy.
+\newblock \emph{American Economic Review}, 111\penalty0 (1):\penalty0 364–96,
+  January 2021.
+\newblock \doi{10.1257/aer.20161723}.
+\newblock URL \url{https://www.aeaweb.org/articles?id=10.1257/aer.20161723}.
+
+\bibitem[Zwick and Mahon(2017)]{ZwickMahon2017}
+Eric Zwick and James Mahon.
+\newblock Tax policy and heterogeneous investment behavior.
+\newblock \emph{American Economic Review}, 107\penalty0 (1):\penalty0 217–48,
+  January 2017.
+\newblock \doi{10.1257/aer.20140855}.
+\newblock URL \url{https://www.aeaweb.org/articles?id=10.1257/aer.20140855}.
+
+\end{thebibliography}

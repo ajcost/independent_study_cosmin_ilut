@@ -13,23 +13,20 @@
 % -----------------------------
 \RequirePackage[T1]{fontenc}
 \RequirePackage[utf8]{inputenc}
-\IfFileExists{kpfonts.sty}{\RequirePackage{kpfonts}}{\RequirePackage{mathpazo}}
+\RequirePackage{kpfonts}
 \RequirePackage{amsmath,amssymb,amsfonts,amsthm}
 \RequirePackage[margin=1.2in]{geometry}
 \RequirePackage{graphicx}
 \RequirePackage{natbib}
 \RequirePackage{fancyhdr}
 \RequirePackage{setspace}
-\RequirePackage{tikz}
-\usetikzlibrary{decorations.pathreplacing,calc}
-\RequirePackage{graphicx}
 
 % -----------------------------
 % Colors
 % -----------------------------
 \RequirePackage{xcolor}
 \definecolor{CustomColorDarkBlue}{rgb}{.1,0,.2}
-\definecolor{CustomColorBlue}{rgb}{.1,.1,.5}
+\definecolor{CustomColorBlue}{HTML}{0000FF}
 \definecolor{CustomColorGreen}{rgb}{0,.4,0}
 \definecolor{CustomColorRed}{rgb}{.3,0,.7}
 \definecolor{palepink}{RGB}{180,60,110}
@@ -37,7 +34,8 @@
 \definecolor{Charcoal}{HTML}{554e4e}           % dark neutral
 \definecolor{CharcoalOlive}{HTML}{1a7668}      % green-ish, less gray than original
 \definecolor{SandDune}{HTML}{cfd2b2}           % light accent (backgrounds)
-\definecolor{DustyRose}{HTML}{8b5a6b}          % deeper pink for links/citations
+\definecolor{DustyRose}{HTML}{C9688A}          % deeper pink for links/citations
+\definecolor{Plum}{HTML}{5B2C6F}               % dark plum for theorems/propositions
 
 % -----------------------------
 % Hyperref
@@ -46,7 +44,7 @@
     bookmarks=false,
     pdfstartview=Fit,
     pdfview=Fit,
-    linkcolor=DustyLavender,
+    linkcolor=blue,
     urlcolor=CustomColorGreen,
     citecolor=DustyRose,
     hyperfootnotes=false
@@ -55,46 +53,64 @@
 \urlstyle{rm}
 
 % -----------------------------
+% Cleveref — smart cross-references (\ref -> "Section 2", "Definition 1", etc.)
+% -----------------------------
+\RequirePackage[nameinlink,capitalize]{cleveref}
+\AtBeginDocument{\let\ref\cref}
+
+% -----------------------------
 % Title, abstract, figure/table labels
 % -----------------------------
 \let\LaTeXtitle\title
 \renewcommand{\title}[1]{\LaTeXtitle{\begin{minipage}{0.75\textwidth}\centering\huge\rmfamily\scshape #1\end{minipage}}}
 \renewcommand{\abstractname}{Abstract}
-\renewcommand{\figurename}{\color{DustyLavender}Figure}
-\renewcommand{\tablename}{\color{DustyLavender}Table}
-
+\renewenvironment{abstract}
+  {\noindent\begin{center}\bfseries\abstractname\end{center}\vspace{-1em}\small\begin{quote}}
+  {\end{quote}\vspace{-1em}}
+\renewcommand{\figurename}{\color{black}Figure}
+\renewcommand{\tablename}{\color{black}Table}
 
 % -----------------------------
 % Section headings
 % -----------------------------
-\let\LaTeX@startsection\@startsection
-\renewcommand{\@startsection}[6]{\LaTeX@startsection%
-{#1}{#2}{#3}{#4}{#5}{\color{DustyLavender}\raggedright #6}}
+\RequirePackage{titlesec}
 
-\renewcommand{\@seccntformat}[1]{%
-  \csname the#1\endcsname\quad
-}
+% Format Section
+\titleformat{\section}
+  {\color{black}\raggedright\Large\bfseries}
+  {\thesection}{1em}{}
+
+% Format Subsection
+\titleformat{\subsection}
+  {\color{black}\raggedright\large\bfseries}
+  {\thesubsection}{1em}{}
+
+% Format Subsubsection
+\titleformat{\subsubsection}
+  {\color{black}\raggedright\normalsize\bfseries}
+  {\thesubsubsection}{1em}{}
+
+% Format Paragraph (Note the [runin] tag to keep it inline!)
+\titleformat{\paragraph}[runin]
+  {\color{black}\normalsize\bfseries}
+  {\theparagraph}{1em}{}
 
 % -----------------------------
 % Theorem environments
 % -----------------------------
-\newtheoremstyle{assumptionstyle}{12pt}{12pt}{\itshape}{}{\bfseries\color{CharcoalOlive}}{.}{.5em}{}
-\newtheoremstyle{propositionstyle}{12pt}{12pt}{\itshape}{}{\bfseries\color{CharcoalOlive}}{.}{.5em}{}
-\newtheoremstyle{standardstyle}{12pt}{12pt}{\itshape}{}{\bfseries\color{CharcoalOlive}}{.}{.5em}{}
+\newtheoremstyle{purplestyle}{12pt}{12pt}{\itshape}{}{\bfseries\color{Plum}}{.}{.5em}{}
+\newtheoremstyle{greenstyle}{12pt}{12pt}{\itshape}{}{\bfseries\color{CustomColorGreen}}{.}{.5em}{}
 
-\theoremstyle{assumptionstyle}
+\theoremstyle{purplestyle}
 \newtheorem{assumption}{Assumption}
-
-\theoremstyle{propositionstyle}
 \newtheorem{proposition}{Proposition}
-
-\theoremstyle{standardstyle}
 \newtheorem{theorem}{Theorem}
 \newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{definition}[theorem]{Definition}
 \newtheorem{remark}{Remark}
-\newtheorem{usefulfact}{Useful Fact}
+
+\theoremstyle{greenstyle}
+\newtheorem{definition}[theorem]{Definition}
 
 \renewcommand{\qedsymbol}{\rule{0.5em}{0.5em}}
 
