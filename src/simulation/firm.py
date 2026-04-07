@@ -1,41 +1,40 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import warnings
 
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.optimize import brentq
 from scipy.optimize import minimize_scalar
-from scipy.spatial.distance import cdist
-from scipy.special import softmax
 
 import quantecon as qe
 from .gaussian_process import GPBelief # type: ignore[import]
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .gaussian_process import GPBeliefParameters
 
 @dataclass
 class InvestmentParameters:
     ALPHA: float = 0.33 # Capital production elasticity
     DELTA: float = 0.04 # Depreciation rate
-    R: float = 0.03 # Interest rate
-    
+    R: float = 0.03     # Interest rate
+    THETA: float = 0.0  # Collateral constraint fraction (b_{t+1} <= theta * k_{t+1})
+    BETA: float = 0.96  # Discount factor (set independently of R)
+
     # These will be set based on the scenario
-    KAPPA: float = 0.1 # Adjustment cost parameter
-    RHO: float = 0.9 # Persistence
+    KAPPA: float = 0.1   # Adjustment cost parameter
+    RHO: float = 0.9     # Persistence
     SIGMA_EPS: float = 0.0 # Volatility (0 = Deterministic)
 
     # Grid Parameters
-    N_k: int = 100 # Number of capital grid points
-    N_z: int = 5 # Number of shock states (if stochastic)
-    K_min: float = 0.1 # Minimum capital
-    K_max: float = 20.0 # Maximum capital
+    N_k: int = 100
+    N_z: int = 7
+    K_min: float = 0.01
+    K_max: float = 20.0
 
-    # Calculated post-init
-    BETA: float = field(init=False) # Discount factor
-
-    def __post_init__(self):
-        self.BETA = 1 / (1 + self.R)
 
 @dataclass
 class SimResult:
@@ -45,238 +44,35 @@ class SimResult:
     k_next: np.ndarray
     i: np.ndarray
     d: np.ndarray
+    b: np.ndarray
+    b_next: np.ndarray
+
+
+class AdjustmentCosts(ABC):
+    @abstractmethod
+    def __call__(self, i: float, k: float) -> float:
+        """Returns psi(i, k)."""
+        raise NotImplementedError
+
+class NoAdjustmentCosts(AdjustmentCosts):
+    def __call__(self, i: float, k: float) -> float:
+        return 0.0
+
+class QuadraticAdjustmentCosts(AdjustmentCosts):
+    def __init__(self, kappa: float):
+        self.kappa = kappa
+
+    def __call__(self, i: float, k: float) -> float:
+        k_safe = max(k, 1e-8)
+        return (self.kappa / 2.0) * (i**2 / k_safe)
 
 
 class InvestmentEnvironment:
-    def __init__(self, params: InvestmentParameters, seed=0):
+    def __init__(self, params: InvestmentParameters, adjustment_costs: AdjustmentCosts, seed: int = 42):
         self.p = params
+        self.adjustment_costs = adjustment_costs
         self.rng = np.random.default_rng(seed)
-
-    def production(self, z, k):
-        return z * (k ** self.p.ALPHA)
-
-    def dividend(self, z, k, i):
-        k_safe = max(k, 1e-8)
-        adj_cost = 0.0
-        if self.p.KAPPA > 0:
-            adj_cost = (self.p.KAPPA / 2.0) * (i**2 / k_safe)
-        return self.production(z, k_safe) - i - adj_cost
-
-    def get_reward(self, z, k, k_prime):
-        # action is k' = next capital
-        k_safe = max(k, 1e-8)
-        k_prime = max(k_prime, 1e-8)
-
-        i = k_prime - (1.0 - self.p.DELTA) * k_safe
-        return self.dividend(z, k_safe, i)
-
-    def transition(self, z, k_prime, custom_rng=None):
-        k_next = max(k_prime, 1e-8)
-
-        if self.p.SIGMA_EPS > 0:
-            eps = self.rng.normal(0.0, self.p.SIGMA_EPS) if custom_rng is None else custom_rng.normal(0.0, self.p.SIGMA_EPS)
-            z_next = np.exp(self.p.RHO * np.log(max(z, 1e-12)) + eps)
-        else:
-            z_next = z
-
-        return z_next, k_next
-
-class InvestmentAgent(ABC):
-    """Abstract base class for an investment agent. Subclasses should implement policy_kprime.
-    """
-
-    def __init__(self, params: InvestmentParameters, name: str):
-        self.p = params
-        self.name = name
-
-    def fit(self):
-        """Optional training/solving step. Default: do nothing."""
-        return self
-
-    @abstractmethod
-    def policy_kprime(self, z: float, k: float, t: int | None = None) -> float:
-        """Given state (z,k), return chosen next capital k'.
-
-        Arguments:
-            z(float): Current shock state.
-            k(float): Current capital.
-            t(int|None): Current time step (optional, for non-stationary policies).
-
-        Returns:
-            k'(float): Chosen next capital.
-        """
-        raise NotImplementedError
-    
-    @abstractmethod
-    def fixed_point(self) -> float:
-        """Return the fixed point k' = k for the agent's policy. Used for steady state analysis."""
-        raise NotImplementedError
-
-    def simulate(self, env: InvestmentEnvironment, T=60, z0=1.0, k0=10.0, seed=0) -> SimResult:
-        """Unified simulation harness. Uses env.get_reward + env.transition.
-
-        Arguments:
-            env(InvestmentEnvironment): The environment to simulate in.
-            T(int): Number of time steps to simulate.
-            z0(float): Initial shock state.
-            k0(float): Initial capital.
-            seed(int): Random seed for reproducibility.
-
-        Returns:
-            SimResult: Dataclass containing simulation results.
-        """
-        rng = np.random.default_rng(seed)
-
-        t = np.arange(T, dtype=int)
-        z = np.empty(T, dtype=float)
-        k = np.empty(T, dtype=float)
-        k_next = np.empty(T, dtype=float)
-        i = np.empty(T, dtype=float)
-        d = np.empty(T, dtype=float)
-
-        z[0] = float(z0)
-        k[0] = float(k0)
-
-        for tt in range(T):
-            # choose action
-            kp = float(self.policy_kprime(z[tt], k[tt], t=tt))
-            k_next[tt] = kp
-
-            # implied investment
-            i[tt] = kp - (1.0 - self.p.DELTA) * k[tt]
-
-            # dividend (reward)
-            d[tt] = env.get_reward(z[tt], k[tt], kp)
-
-            # transition (except last)
-            if tt < T - 1:
-                z_next, k_state_next = env.transition(z[tt], kp, custom_rng=rng)
-                z[tt + 1] = z_next
-                k[tt + 1] = k_state_next
-
-        return SimResult(t=t, z=z, k=k, k_next=k_next, i=i, d=d)
-    
-
-    def simulate_irf(
-        self,
-        env: InvestmentEnvironment,
-        T: int = 40,
-        shock_size_log: float = 0.05,
-        shock_time: int = 0,
-        z0: float = 1.0,
-        k0: float | None = None,
-        deterministic_after: bool = True,
-        seed: int = 0,
-    ) -> dict:
-        """
-        Impulse response for any agent that implements policy_kprime() and fixed_point().
-
-        Convention:
-          - Apply a one-time impulse to log(z) at shock_time.
-          - If deterministic_after=True: set future innovations eps_{t>shock_time}=0 (standard DSGE IRF).
-          - If deterministic_after=False: simulate future shocks with common random numbers (Monte Carlo-style),
-            using the env.transition() RNG (seeded).
-
-        Returns:
-          dict with baseline and shocked SimResult plus diff and percent deviations.
-        """
-        p = self.p
-
-        if k0 is None:
-            k0 = float(self.fixed_point())
-
-        tgrid = np.arange(T, dtype=int)
-
-        rng_base = np.random.default_rng(seed)
-        rng_shk = np.random.default_rng(seed)  # common random numbers
-
-        def step_z(z_now: float, rng) -> float:
-            if p.SIGMA_EPS <= 0:
-                return z_now
-            if deterministic_after:
-                # eps = 0
-                return float(np.exp(p.RHO * np.log(max(z_now, 1e-12))))
-            # stochastic eps
-            eps = float(rng.normal(0.0, p.SIGMA_EPS))
-            return float(np.exp(p.RHO * np.log(max(z_now, 1e-12)) + eps))
-
-        def run_path(apply_shock: bool, rng) -> SimResult:
-            z = np.empty(T, dtype=float)
-            k = np.empty(T, dtype=float)
-            k_next = np.empty(T, dtype=float)
-            i = np.empty(T, dtype=float)
-            d = np.empty(T, dtype=float)
-
-            z[0] = float(z0)
-            k[0] = float(k0)
-
-            # apply impulse at t=0
-            if apply_shock and shock_time == 0:
-                z[0] = float(np.exp(np.log(max(z[0], 1e-12)) + shock_size_log))
-
-            for tt in range(T):
-                kp = float(self.policy_kprime(z[tt], k[tt], t=tt))
-                k_next[tt] = kp
-                i[tt] = kp - (1.0 - p.DELTA) * k[tt]
-                d[tt] = float(env.get_reward(z[tt], k[tt], kp))
-
-                if tt < T - 1:
-                    # capital transition is deterministic given action
-                    k[tt + 1] = max(kp, 1e-8)
-
-                    # productivity transition
-                    z[tt + 1] = step_z(z[tt], rng)
-
-                    # apply impulse at shock_time if not 0
-                    if apply_shock and (tt + 1) == shock_time:
-                        z[tt + 1] = float(np.exp(np.log(max(z[tt + 1], 1e-12)) + shock_size_log))
-
-            return SimResult(t=tgrid, z=z, k=k, k_next=k_next, i=i, d=d)
-
-        base = run_path(False, rng_base)
-        shk  = run_path(True, rng_shk)
-
-        diff = SimResult(
-            t=tgrid,
-            z=shk.z - base.z,
-            k=shk.k - base.k,
-            k_next=shk.k_next - base.k_next,
-            i=shk.i - base.i,
-            d=shk.d - base.d,
-        )
-
-        pct = {
-            "z": 100.0 * (shk.z / base.z - 1.0),
-            "k": 100.0 * (shk.k / base.k - 1.0),
-            "i": 100.0 * (shk.i / base.i - 1.0),
-            "d": 100.0 * (shk.d / base.d - 1.0),
-        }
-
-        return {"t": tgrid, "base": base, "shk": shk, "diff": diff, "pct": pct}
-
-    def policy_curve(self, z_grid: np.ndarray, k_grid: np.ndarray, z_idx: int = 0) -> tuple[np.ndarray, np.ndarray]:
-        """Return arrays (k_grid, kprime_grid) for plotting k -> k' at a given z index.
-        
-        By default uses the agent's policy_kprime on grid points.
-
-        Arguments:
-            z_grid(np.ndarray): Grid of z values.
-            k_grid(np.ndarray): Grid of k values.
-            z_idx(int): Index of z_grid to use for plotting.
-
-        Returns:
-            (k_grid, kprime_grid): Tuple of arrays for plotting.
-        """
-        z_val = float(z_grid[z_idx])
-        kprime_vals = np.array([self.policy_kprime(z_val, float(kv)) for kv in k_grid], dtype=float)
-        return k_grid, kprime_vals
-    
-class RationalInvestmentAgent(InvestmentAgent):
-
-    def __init__(self, params: InvestmentParameters):
-        super().__init__(params, name="Rational (VFI)")
         self.setup_grids()
-        self.initialize_value_function()
 
     def setup_grids(self):
         if self.p.SIGMA_EPS > 0 and self.p.N_z > 1:
@@ -287,56 +83,245 @@ class RationalInvestmentAgent(InvestmentAgent):
             self.P = mc.P
             self.actual_nz = self.p.N_z
         else:
+            warnings.warn("Zero volatility or zero z states: using degenerate z grid with a single point at 1.0.")
             self.z_grid = np.array([1.0])
             self.P = np.array([[1.0]])
             self.actual_nz = 1
 
         self.k_grid = np.linspace(self.p.K_min, self.p.K_max, self.p.N_k)
 
+    def action_query_grid(self, z_t, k_t):
+        """Returns a grid of (z, k, i) points for querying the GP given current state (z_t, k_t).
+        Generally used to discretize the action space for the ExperienceReasoningAgent's policy.
+        """
+        i_grid = self.k_grid - (1 - self.p.DELTA) * k_t
+        return np.column_stack([
+            np.full_like(i_grid, z_t),
+            np.full_like(i_grid, k_t),
+            i_grid
+        ])
+
+    def production(self, z, k):
+        return z * (k ** self.p.ALPHA)
+
+    def optimal_b_next(self, k_next: float) -> float:
+        """Optimal next-period debt given k_next.
+
+        With linear utility, the net PV of a unit of debt is (1 - beta*(1+R)):
+          - beta*(1+R) <= 1: borrow at collateral constraint
+          - beta*(1+R) >  1: don't borrow
+        """
+        if self.p.BETA * (1.0 + self.p.R) <= 1.0:
+            return self.p.THETA * k_next
+        return 0.0
+
+    def dividend(self, z, k, i, b=0.0, b_next=0.0):
+        """d = f(z,k) - i - psi(i,k) + b_{t+1} - (1+R)*b_t"""
+        k_safe = max(k, 1e-8)
+        adj_cost = self.adjustment_costs(i, k_safe)
+        return self.production(z, k_safe) - i - adj_cost + b_next - (1 + self.p.R) * b
+
+    # TODO: Double check this
+    def gp_observation(self, z, k, i, b_next):
+        """Dividend corrected for debt terms for GP updates.
+
+        The GP learns Q(z,k,b,i) = GP(z,k,i) - (1+R)*b.
+        The correct GP observation target is:
+            d + (1+R)*b - beta*(1+R)*b_next = f(z,k) - i - psi(i,k) + b_next*(1 - beta*(1+R))
+        """
+        k_safe = max(k, 1e-8)
+        adj_cost = self.adjustment_costs(i, k_safe)
+        correction = b_next * (1.0 - self.p.BETA * (1.0 + self.p.R))
+        return self.production(z, k_safe) - i - adj_cost + correction
+
+    def transition(self, z, k_prime, b_next=0.0, custom_rng=None):
+        k_next = max(k_prime, 1e-8)
+        if self.p.SIGMA_EPS > 0:
+            rng = custom_rng if custom_rng is not None else self.rng
+            eps = rng.normal(0.0, self.p.SIGMA_EPS)
+            z_next = np.exp(self.p.RHO * np.log(max(z, 1e-12)) + eps)
+        else:
+            z_next = z
+        return z_next, k_next, float(b_next)
+
+
+class InvestmentAgent(ABC):
+    """Abstract base class for an investment agent."""
+
+    def __init__(self, env: InvestmentEnvironment, name: str):
+        self.env = env
+        self.p = env.p   # convenience shorthand
+        self.name = name
+
+    def fit(self):
+        """Optional training/solving step. Default: do nothing."""
+        return self
+
+    @abstractmethod
+    def policy(self, z: float, k: float, b: float = 0.0, t: int | None = None) -> tuple[float, float]:
+        """Given state (z, k, b), return (k_next, b_next)."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def fixed_point(self) -> float:
+        """Return the steady-state capital k* (with z=1). b* = THETA * k*."""
+        raise NotImplementedError
+
+    def simulate(self, env: InvestmentEnvironment | None = None, T=60, z0=1.0, k0=10.0, b0=0.0, seed=0) -> SimResult:
+        """Simulate the agent. Uses the agent's own environment if env is not provided."""
+        env = env or self.env
+        rng = np.random.default_rng(seed)
+
+        t = np.arange(T, dtype=int)
+        z = np.empty(T, dtype=float)
+        k = np.empty(T, dtype=float)
+        k_next = np.empty(T, dtype=float)
+        i = np.empty(T, dtype=float)
+        d = np.empty(T, dtype=float)
+        b = np.empty(T, dtype=float)
+        b_next = np.empty(T, dtype=float)
+
+        z[0], k[0], b[0] = float(z0), float(k0), float(b0)
+
+        for tt in range(T):
+            kp, bp = self.policy(z[tt], k[tt], b[tt], t=tt)
+            k_next[tt], b_next[tt] = kp, bp
+            i[tt] = kp - (1.0 - self.p.DELTA) * k[tt]
+            d[tt] = env.dividend(z[tt], k[tt], i[tt], b[tt], bp)
+
+            if tt < T - 1:
+                z[tt+1], k[tt+1], b[tt+1] = env.transition(z[tt], kp, bp, custom_rng=rng)
+
+        return SimResult(t=t, z=z, k=k, k_next=k_next, i=i, d=d, b=b, b_next=b_next)
+
+    def simulate_irf(
+        self,
+        env: InvestmentEnvironment | None = None,
+        T: int = 40,
+        shock_size_log: float = 0.05,
+        shock_time: int = 0,
+        z0: float = 1.0,
+        k0: float | None = None,
+        b0: float | None = None,
+        deterministic_after: bool = True,
+        seed: int = 0,
+    ) -> dict:
+        """Impulse response function. Uses the agent's own environment if env is not provided."""
+        env = env or self.env
+        p = self.p
+
+        if k0 is None:
+            k0 = float(self.fixed_point())
+        if b0 is None:
+            b0 = p.THETA * k0
+
+        tgrid = np.arange(T, dtype=int)
+        rng_base = np.random.default_rng(seed)
+        rng_shk  = np.random.default_rng(seed)
+
+        def step_z(z_now: float, rng) -> float:
+            if p.SIGMA_EPS <= 0:
+                return z_now
+            if deterministic_after:
+                return float(np.exp(p.RHO * np.log(max(z_now, 1e-12))))
+            return float(np.exp(p.RHO * np.log(max(z_now, 1e-12)) + rng.normal(0.0, p.SIGMA_EPS)))
+
+        def run_path(apply_shock: bool, rng) -> SimResult:
+            z = np.empty(T, dtype=float)
+            k = np.empty(T, dtype=float)
+            k_next = np.empty(T, dtype=float)
+            i_arr = np.empty(T, dtype=float)
+            d = np.empty(T, dtype=float)
+            b = np.empty(T, dtype=float)
+            b_next = np.empty(T, dtype=float)
+
+            z[0], k[0], b[0] = float(z0), float(k0), float(b0)
+
+            if apply_shock and shock_time == 0:
+                z[0] = float(np.exp(np.log(max(z[0], 1e-12)) + shock_size_log))
+
+            for tt in range(T):
+                kp, bp = self.policy(z[tt], k[tt], b[tt], t=tt)
+                k_next[tt], b_next[tt] = kp, bp
+                i_arr[tt] = kp - (1.0 - p.DELTA) * k[tt]
+                d[tt] = float(env.dividend(z[tt], k[tt], i_arr[tt], b[tt], bp))
+
+                if tt < T - 1:
+                    k[tt+1] = max(kp, 1e-8)
+                    b[tt+1] = float(bp)
+                    z[tt+1] = step_z(z[tt], rng)
+                    if apply_shock and (tt + 1) == shock_time:
+                        z[tt+1] = float(np.exp(np.log(max(z[tt+1], 1e-12)) + shock_size_log))
+
+            return SimResult(t=tgrid, z=z, k=k, k_next=k_next, i=i_arr, d=d, b=b, b_next=b_next)
+
+        base = run_path(False, rng_base)
+        shk  = run_path(True,  rng_shk)
+
+        diff = SimResult(
+            t=tgrid,
+            z=shk.z - base.z, k=shk.k - base.k,
+            k_next=shk.k_next - base.k_next, i=shk.i - base.i,
+            d=shk.d - base.d, b=shk.b - base.b, b_next=shk.b_next - base.b_next,
+        )
+        pct = {
+            "z": 100.0 * (shk.z / base.z - 1.0),
+            "k": 100.0 * (shk.k / base.k - 1.0),
+            "i": 100.0 * (shk.i / base.i - 1.0),
+            "d": 100.0 * (shk.d / base.d - 1.0),
+            "b": 100.0 * (shk.b / np.maximum(base.b, 1e-12) - 1.0),
+        }
+        return {"t": tgrid, "base": base, "shk": shk, "diff": diff, "pct": pct}
+
+    def policy_curve(self, z_grid: np.ndarray, k_grid: np.ndarray, z_idx: int = 0, b: float = 0.0) -> tuple[np.ndarray, np.ndarray]:
+        """Return (k_grid, kprime_grid) for plotting at a given z index and debt b."""
+        z_val = float(z_grid[z_idx])
+        kprime_vals = np.array([self.policy(z_val, float(kv), b)[0] for kv in k_grid], dtype=float)
+        return k_grid, kprime_vals
+
+
+class RationalInvestmentAgent(InvestmentAgent):
+
+    def __init__(self, env: InvestmentEnvironment):
+        super().__init__(env, name="Rational (VFI)")
+        self.initialize_value_function()
+
     def initialize_value_function(self):
-        self.v = np.zeros((self.actual_nz, self.p.N_k))
-        self.policy_k = np.zeros((self.actual_nz, self.p.N_k))
+        self.v = np.zeros((self.env.actual_nz, self.env.p.N_k))
+        self.policy_k = np.zeros((self.env.actual_nz, self.env.p.N_k))
+        for i_z in range(self.env.actual_nz):
+            self.v[i_z, :] = self.env.production(self.env.z_grid[i_z], self.env.k_grid) / self.env.p.R
 
-        for i_z in range(self.actual_nz):
-            output = self.z_grid[i_z] * (self.k_grid ** self.p.ALPHA)
-            self.v[i_z, :] = output / self.p.R
+    def _vfi_dividend(self, k_next, k_current, z):
+        """VFI objective dividend for W(z,k) = V(z,k,0).
 
-    def get_dividend(self, k_next, k_current, z):
-        investment = k_next - (1 - self.p.DELTA) * k_current
-        adj_cost = 0.0
-        if self.p.KAPPA > 0:
-            adj_cost = (self.p.KAPPA / 2) * (investment**2 / k_current)
-        return z * (k_current ** self.p.ALPHA) - investment - adj_cost
+        Since V(z,k,b) = W(z,k) - (1+R)*b, the VFI objective at b=0 is
+        exactly the GP observation target: f(z,k) - i - psi(i,k) + b_next*(1 - beta*(1+R)).
+        """
+        i = k_next - (1 - self.env.p.DELTA) * k_current
+        b_next = self.env.optimal_b_next(k_next)
+        return self.env.gp_observation(z, k_current, i, b_next)
 
     def fit(self, tol=1e-5, max_iter=500):
         for _ in range(max_iter):
             v_new = np.zeros_like(self.v)
             policy_new = np.zeros_like(self.policy_k)
 
-            v_expected = self.P @ self.v
-
+            v_expected = self.env.P @ self.v
             ev_funcs = [
-                interp1d(self.k_grid, v_expected[i, :],
-                         kind="linear", fill_value="extrapolate")  # type: ignore[reportUnknownMemberType]
-                for i in range(self.actual_nz)
+                interp1d(self.env.k_grid, v_expected[i, :], kind="linear", fill_value="extrapolate") # type: ignore[reportUnknownMemberType]
+                for i in range(self.env.actual_nz)
             ]
 
-            for i_z in range(self.actual_nz):
-                z = self.z_grid[i_z]
+            for i_z in range(self.env.actual_nz):
+                z = self.env.z_grid[i_z]
                 cont_func = ev_funcs[i_z]
 
-                for i_k, k in enumerate(self.k_grid):
+                for i_k, k in enumerate(self.env.k_grid):
+                    def objective(k_prime, _k=k, _z=z):
+                        return -(self._vfi_dividend(k_prime, _k, _z) + self.env.p.BETA * cont_func(k_prime))
 
-                    def objective(k_prime):
-                        div = self.get_dividend(k_prime, k, z)
-                        return -(div + self.p.BETA * cont_func(k_prime))
-
-                    res = minimize_scalar(
-                        objective,
-                        bounds=(self.p.K_min, self.p.K_max),
-                        method="bounded"
-                    )
-
+                    res = minimize_scalar(objective, bounds=(self.env.p.K_min, self.env.p.K_max), method="bounded")
                     v_new[i_z, i_k] = -res.fun
                     policy_new[i_z, i_k] = res.x
 
@@ -346,146 +331,146 @@ class RationalInvestmentAgent(InvestmentAgent):
             self.v = v_new
             self.policy_k = policy_new
 
-        # build fast interpolators for policy queries
         self._pol_funcs = [
-            interp1d(self.k_grid, self.policy_k[i, :],
-                     kind="linear", fill_value="extrapolate")  # type: ignore[reportUnknownMemberType]
-            for i in range(self.actual_nz)
+            interp1d(self.env.k_grid, self.policy_k[i, :], kind="linear", fill_value="extrapolate") # type: ignore[reportUnknownMemberType]
+            for i in range(self.env.actual_nz)
         ]
-
         return self
 
     def _z_to_idx(self, z):
-        return int(np.argmin(np.abs(self.z_grid - z)))
+        return int(np.argmin(np.abs(self.env.z_grid - z)))
 
-    def policy_kprime(self, z: float, k: float, t=None) -> float:
+    def policy(self, z: float, k: float, b: float = 0.0, t=None) -> tuple[float, float]:
         z_idx = self._z_to_idx(z)
-        return float(self._pol_funcs[z_idx](k))
-    
+        k_next = float(self._pol_funcs[z_idx](k))
+        return k_next, self.env.optimal_b_next(k_next)
+
     def fixed_point(self) -> float:
         def objective(k):
-            return self.policy_kprime(1.0, k) - k  # z=1 for deterministic
+            return self.policy(1.0, k)[0] - k
+        return brentq(objective, self.env.k_grid[0], self.env.k_grid[-1]) # pyright: ignore[reportReturnType]
 
-        k_min = self.k_grid[0]
-        k_max = self.k_grid[-1]
-
-        return brentq(objective, k_min, k_max) # pyright: ignore[reportReturnType]
 
 @dataclass
 class InvestmentAgentParameters:
-    H: float = 0.05 # exploration regularization parameter for ExperienceAgent
+    H: float = 0.05  # exploration regularization parameter\
+    KAPPA_R: float = 0.01
 
-class ExperienceAgent(InvestmentAgent):
-    def __init__(self, params: InvestmentParameters, gp: GPBelief, agent_params: InvestmentAgentParameters, seed: int = 42):
-        super().__init__(params, name="Experience Agent")
+
+def calibrated_entropy_regularization_parameter(env: InvestmentEnvironment, gp_params: GPBeliefParameters) -> float:
+    """Calibrates h from environment primitives so the initial entropy target
+    h * tr(Sigma_0) = 0.5 * ln(N_k), where tr(Sigma_0) = N_k * sigma0^2.
+    
+        h = 0.5 * ln(N_k) / (N_k * sigma0^2)
+    """
+    N = env.p.N_k
+    return 0.5 * np.log(N) / (N * gp_params.kernel.sigma0_sq)
+
+class ExperienceReasoningAgent(InvestmentAgent):
+    def __init__(self, env, gp, agent_params, experience_only=False, seed=42):
+        super().__init__(env, name="Experience-Reasoning Agent")
         self.gp = gp
         self.agent_params = agent_params
+        self.experience_only = experience_only
         self.rng = np.random.default_rng(seed)
-        
-        # Grid used purely to define the discrete action space C for the softmax
-        self.k_candidates = np.linspace(self.p.K_min, self.p.K_max, self.p.N_k)
 
-    def _get_action_queries(self, z: float, k: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        i_candidates = self.k_candidates - (1.0 - self.p.DELTA) * k # investments implied by candidate k' actions
-    
-        valid_mask = i_candidates >= 0.0 # boundary condition: can't disinvest beyond fully depreciating current capital
-        
-        valid_k = self.k_candidates[valid_mask]
+    def _get_action_queries(self, z, k, b=0.0):
+        k_safe = max(k, 1e-8)
+        i_candidates = self.env.k_grid - (1.0 - self.env.p.DELTA) * k_safe
+        b_next_candidates = np.array([self.env.optimal_b_next(kp) for kp in self.env.k_grid])
+        dividends = np.array([
+            self.env.dividend(z, k_safe, i, b, bn)
+            for i, bn in zip(i_candidates, b_next_candidates)
+        ])
+
+        valid_mask = dividends >= -1e-8
+        if not np.any(valid_mask):
+            best_idx = np.argmax(dividends)
+            valid_mask[best_idx] = True
+
+        valid_k = self.env.k_grid[valid_mask]
         valid_i = i_candidates[valid_mask]
-        
-        # 3. Fallback: If the firm is massively overcapitalized (e.g., above the grid max)
-        # the only physically possible action is to invest 0 and let it depreciate.
-        if len(valid_k) == 0:
-            valid_k = np.array([(1.0 - self.p.DELTA) * k])
-            valid_i = np.array([0.0])
-            
-        # 4. Build the query matrix for the GP
         X_query = np.column_stack([
             np.full(len(valid_k), z),
-            np.full(len(valid_k), k),
+            np.full(len(valid_k), k_safe),
             valid_i
         ])
-        
         return valid_k, valid_i, X_query
 
-    def _entropy_policy(self, q: np.ndarray, std: np.ndarray) -> tuple[np.ndarray, float]:
-        """
-        Implements Proposition 2: The endogenous temperature softmax.
-        Returns the probability distribution AND the shadow price delta_t.
-        """
+    def _entropy_policy(self, q, std):
         N = len(q)
         H_max = np.log(N)
-        
-        # Uncertainty regularization
-        lower_bound_entropy = self.agent_params.H * np.sum(std)
+        lower_bound_entropy = self.agent_params.H * np.sum(std**2)
 
-        # Base case 1: Uncertainty is basically zero -> Greedy Action - approximate delta as 0
         if lower_bound_entropy <= 1e-8:
             p = np.zeros(N)
             p[np.argmax(q)] = 1.0
             return p, 0.0
 
-        # Base case 2: Uncertainty is massive -> Uniform Random - approximate delta as infinity
         if lower_bound_entropy >= H_max - 1e-8:
             return np.ones(N) / N, np.inf
 
-        # Root finding function for delta
         def f(delta):
-            # Numerically stable softmax
             logits = q / max(delta, 1e-12)
             logits -= np.max(logits)
             p = np.exp(logits)
             p /= np.sum(p)
-            
-            # Calculate entropy
-            H = -np.sum(p * np.log(p + 1e-12))
-            return H - lower_bound_entropy
+            return -np.sum(p * np.log(p + 1e-12)) - lower_bound_entropy
 
-        # Find the delta that satisfies the entropy constraint
         try:
             delta_star = brentq(f, 1e-6, 1e6, maxiter=200)
         except ValueError:
-            warnings.warn("Brentq failed to find a root for delta. Defaulting to uniform random policy.")
-            # If brentq fails to bracket, default to a high temperature
-            delta_star = 1e3
+            delta_star = 1e-6 if abs(f(1e-6)) < abs(f(1e6)) else 1e6
 
-        # Construct final probabilities using delta_star
         logits = q / max(delta_star, 1e-12)
         logits -= np.max(logits)
         p = np.exp(logits)
         p /= np.sum(p)
-        
-        return p, float(delta_star)
+        return p, float(delta_star)  # type: ignore
 
-    def policy_kprime(self, z: float, k: float, t=None, return_delta=False) -> float:
-        """Evaluates candidates via GP and samples from the entropy-constrained policy."""
-        # 1. Get the DYNAMICALLY sized list of valid physical actions
-        k_cands, i_cands, X_query = self._get_action_queries(z, k)
-        
-        # 2. GP Mental Simulation
-        mean, std = self.gp.predict(X_query, return_std=True)
-        
-        # 3. Calculate endogenous policy and temperature
-        probs, delta_t = self._entropy_policy(mean, std)
-        
-        # 4. FIX: Sample from the number of valid candidates, not the static N_k
-        chosen_idx = self.rng.choice(len(k_cands), p=probs)
-        chosen_kprime = float(k_cands[chosen_idx])
-        
-        if return_delta:
-            return chosen_kprime, delta_t # pyright: ignore[reportReturnType]
-        return chosen_kprime
+    def get_beliefs(self, z, k, b=0.0):
+        k_cands, _, X_q = self._get_action_queries(z, k, b)
+        mean, std = self.gp.predict(X_q, return_std=True)
+        return k_cands, X_q, mean, std
 
-    def get_greedy_action(self, z: float, k: float) -> float:
-        """Used strictly for formulating the TD target."""
-        k_cands, i_cands, X_query = self._get_action_queries(z, k)
-        mean = self.gp.predict(X_query, return_std=False)
-        return float(k_cands[np.argmax(mean)])
+    def reason(self, X_q, delta_E, std_E):
+        kappa = self.agent_params.KAPPA_R
+        if self.experience_only or kappa <= 0 or delta_E <= 0 or self.agent_params.H <= 0:
+            return std_E
 
-    def fixed_point(self) -> float:
-        z = 1.0
-        diffs = []
-        for k in self.k_candidates:
-            kp = self.get_greedy_action(z, k)
-            diffs.append(abs(kp - k))
-        return float(self.k_candidates[np.argmin(diffs)])
+        _, Sigma_E = self.gp.predict_full(X_q)
+        vals_E, V = np.linalg.eigh(Sigma_E)
+        water_level = kappa / (self.agent_params.H * delta_E)
+        vals_R = np.minimum(vals_E, water_level)
+        Sigma_R = V @ np.diag(vals_R) @ V.T
+        return np.sqrt(np.maximum(np.diag(Sigma_R), 0))
+
+    def policy(self, z, k, b=0.0, t=None):
+        k_cands, X_q, mean, std_E = self.get_beliefs(z, k, b)
+        _, delta_E = self._entropy_policy(mean, std_E)
+        std_R = self.reason(X_q, delta_E, std_E)
+        probs_R, _ = self._entropy_policy(mean, std_R)
+
+        chosen_idx = self.rng.choice(len(k_cands), p=probs_R)
+        k_next = float(k_cands[chosen_idx])
+        b_next = self.env.optimal_b_next(k_next)
+
+        return k_next, b_next
+
+    def get_greedy_action(self, z, k, b=0.0):
+        k_cands, _, X_q = self._get_action_queries(z, k, b)
+        mean = self.gp.predict(X_q, return_std=False)
+        k_next = float(k_cands[np.argmax(mean)])
+        return k_next, self.env.optimal_b_next(k_next)
+
+    def get_expected_action(self, z, k, b=0.0):
+        k_cands, X_q, mean, std_E = self.get_beliefs(z, k, b)
+        _, delta_E = self._entropy_policy(mean, std_E)
+        std_R = self.reason(X_q, delta_E, std_E)
+        probs_R, _ = self._entropy_policy(mean, std_R)
+        k_next = float(np.dot(probs_R, k_cands))
+        return k_next, self.env.optimal_b_next(k_next)
+
+    def fixed_point(self):
+        diffs = [abs(self.get_greedy_action(1.0, k)[0] - k) for k in self.env.k_grid]
+        return float(self.env.k_grid[np.argmin(diffs)])

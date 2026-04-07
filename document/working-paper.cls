@@ -13,7 +13,6 @@
 % -----------------------------
 \RequirePackage[T1]{fontenc}
 \RequirePackage[utf8]{inputenc}
-\RequirePackage{kpfonts}
 \RequirePackage{amsmath,amssymb,amsfonts,amsthm}
 \RequirePackage[margin=1.2in]{geometry}
 \RequirePackage{graphicx}
