@@ -2,40 +2,43 @@
 \contentsline {section}{\numberline {2}Investment Problem}{3}{section.2}%
 \contentsline {subsection}{\numberline {2.1}Solution to Canonical Investment Problem}{4}{subsection.2.1}%
 \contentsline {subsection}{\numberline {2.2}The Firm's Problem and Policy Under Specific Functional Forms}{4}{subsection.2.2}%
-\contentsline {subsection}{\numberline {2.3}Investment Problem Under Learning Through Reasoning and Experience}{5}{subsection.2.3}%
-\contentsline {section}{\numberline {A}Derivations}{7}{appendix.A}%
-\contentsline {subsection}{\numberline {A.1}Derivation of the Canonical Investment Model Solution}{7}{subsection.A.1}%
-\contentsline {subsection}{\numberline {A.2}Derivation of Optimal Action Policy Proposition \cref {prop:optimal_policy}}{8}{subsection.A.2}%
-\contentsline {subsection}{\numberline {A.3}Gaussian Process Regression \& Experience Learning}{9}{subsection.A.3}%
-\contentsline {paragraph}{From $t = 1$.}{9}{subsection.A.3}%
-\contentsline {paragraph}{Gram matrix.}{9}{equation.A.32}%
-\contentsline {paragraph}{Prior TD means.}{10}{equation.A.33}%
-\contentsline {paragraph}{Decorrelation.}{10}{equation.A.34}%
-\contentsline {paragraph}{Worked example $t = 1$.}{10}{equation.A.37}%
-\contentsline {paragraph}{Worked example $t = 2$.}{11}{equation.A.39}%
-\contentsline {section}{\numberline {B}Experience and Reasoning Agent in Consumption Setting}{12}{appendix.B}%
-\contentsline {subsection}{\numberline {B.1}Agent's Beliefs}{12}{subsection.B.1}%
-\contentsline {subsection}{\numberline {B.2}Learning Process}{13}{subsection.B.2}%
-\contentsline {subsubsection}{\numberline {B.2.1}Experience-Based Learning}{13}{subsubsection.B.2.1}%
-\contentsline {paragraph}{Noise in Experience Signal}{14}{equation.B.49}%
-\contentsline {subsubsection}{\numberline {B.2.2}Learning Through Reasoning}{14}{subsubsection.B.2.2}%
-\contentsline {subsection}{\numberline {B.3}Action Selection}{15}{subsection.B.3}%
-\contentsline {subsubsection}{\numberline {B.3.1}The Optimal Policy Decision}{15}{subsubsection.B.3.1}%
-\contentsline {subsubsection}{\numberline {B.3.2}The Reasoning Decision}{16}{subsubsection.B.3.2}%
-\contentsline {subsection}{\numberline {B.4}An Example of Experience-Based Learning in a Two-Period Model}{17}{subsection.B.4}%
-\contentsline {subsection}{\numberline {B.5}An Example of Experience-Based Learning in Infinite-Horizon Model}{19}{subsection.B.5}%
-\contentsline {paragraph}{TD Error.}{20}{equation.B.69}%
-\contentsline {paragraph}{Posterior Update.}{20}{equation.B.70}%
-\contentsline {paragraph}{Kernel Evaluations.}{21}{equation.B.76}%
-\contentsline {subsection}{\numberline {B.6}An Exstension to Allow Caution in Experience-Based Learning}{22}{subsection.B.6}%
-\contentsline {subsection}{\numberline {B.7}An Extension to Allow for Information-Directed Policies}{23}{subsection.B.7}%
-\contentsline {paragraph}{Continuous action spaces.}{24}{equation.B.87}%
-\contentsline {paragraph}{Transition dynamics.}{24}{equation.B.87}%
-\contentsline {subsubsection}{\numberline {B.7.1}Extending by Allowing a GP Prior over Transition Dynamics}{24}{subsubsection.B.7.1}%
-\contentsline {paragraph}{IDS.}{24}{equation.B.89}%
-\contentsline {paragraph}{Information Shadow Price.}{25}{equation.B.89}%
-\contentsline {section}{\numberline {C}Useful Facts \& Properties}{25}{appendix.C}%
-\contentsline {subsection}{\numberline {C.1}Useful Properties of Gaussian Processes}{25}{subsection.C.1}%
-\contentsline {paragraph}{Closure Under Conditioning}{25}{subsection.C.1}%
-\contentsline {paragraph}{Finite-Dimensional Marginals Are Gaussian}{25}{subsection.C.1}%
-\contentsline {paragraph}{Linearity of the Mean}{25}{subsection.C.1}%
+\contentsline {subsection}{\numberline {2.3}Investment Problem Under Learning Through Reasoning and Experience}{6}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Calibration \& Implementation Details}{7}{subsection.2.4}%
+\contentsline {paragraph}{Implementation.}{9}{equation.2.20}%
+\contentsline {section}{\numberline {3}Simulations}{10}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Experience-Only Learning}{10}{subsection.3.1}%
+\contentsline {section}{\numberline {4}Properties of Reasoning Mechanism}{13}{section.4}%
+\contentsline {section}{\numberline {A}Derivations}{14}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Derivation of the Canonical Investment Model Solution}{14}{subsection.A.1}%
+\contentsline {subsection}{\numberline {A.2}Derivation of Optimal Action Policy Proposition \cref {prop:optimal_policy}}{15}{subsection.A.2}%
+\contentsline {subsection}{\numberline {A.3}Gaussian Process Regression \& Experience Learning}{16}{subsection.A.3}%
+\contentsline {paragraph}{From $t = 1$.}{16}{subsection.A.3}%
+\contentsline {paragraph}{Gram matrix.}{16}{equation.A.38}%
+\contentsline {paragraph}{Prior TD means.}{17}{equation.A.39}%
+\contentsline {paragraph}{Decorrelation.}{17}{equation.A.40}%
+\contentsline {paragraph}{Worked example $t = 1$.}{17}{equation.A.43}%
+\contentsline {paragraph}{Worked example $t = 2$.}{18}{equation.A.45}%
+\contentsline {section}{\numberline {B}Experience and Reasoning Agent in Consumption Setting}{19}{appendix.B}%
+\contentsline {subsection}{\numberline {B.1}Agent's Beliefs}{19}{subsection.B.1}%
+\contentsline {subsection}{\numberline {B.2}Learning Process}{20}{subsection.B.2}%
+\contentsline {subsubsection}{\numberline {B.2.1}Experience-Based Learning}{20}{subsubsection.B.2.1}%
+\contentsline {paragraph}{Noise in Experience Signal}{21}{equation.B.55}%
+\contentsline {subsubsection}{\numberline {B.2.2}Learning Through Reasoning}{21}{subsubsection.B.2.2}%
+\contentsline {subsection}{\numberline {B.3}Action Selection}{22}{subsection.B.3}%
+\contentsline {subsubsection}{\numberline {B.3.1}The Optimal Policy Decision}{22}{subsubsection.B.3.1}%
+\contentsline {subsubsection}{\numberline {B.3.2}The Reasoning Decision}{23}{subsubsection.B.3.2}%
+\contentsline {subsection}{\numberline {B.4}An Example of Experience-Based Learning in a Two-Period Model}{24}{subsection.B.4}%
+\contentsline {subsection}{\numberline {B.5}An Example of Experience-Based Learning in Infinite-Horizon Model}{26}{subsection.B.5}%
+\contentsline {paragraph}{TD Error.}{27}{equation.B.75}%
+\contentsline {paragraph}{Posterior Update.}{27}{equation.B.76}%
+\contentsline {paragraph}{Kernel Evaluations.}{28}{equation.B.82}%
+\contentsline {subsection}{\numberline {B.6}An Exstension to Allow Caution in Experience-Based Learning}{29}{subsection.B.6}%
+\contentsline {subsection}{\numberline {B.7}An Extension to Allow for Information-Directed Policies}{30}{subsection.B.7}%
+\contentsline {paragraph}{Continuous action spaces.}{31}{equation.B.93}%
+\contentsline {paragraph}{Transition dynamics.}{31}{equation.B.93}%
+\contentsline {subsubsection}{\numberline {B.7.1}Extending by Allowing a GP Prior over Transition Dynamics}{31}{subsubsection.B.7.1}%
+\contentsline {paragraph}{IDS.}{31}{equation.B.95}%
+\contentsline {paragraph}{Information Shadow Price.}{32}{equation.B.95}%
+\contentsline {section}{\numberline {C}Proofs}{32}{appendix.C}%
+\contentsline {subsection}{\numberline {C.1}Proof of \cref {prop:debt_separation}}{32}{subsection.C.1}%
+\contentsline {subsection}{\numberline {C.2}Proof of \cref {prop:reasoning_lower_bound_on_exploration}}{32}{subsection.C.2}%

@@ -97,7 +97,7 @@
 % -----------------------------
 % Theorem environments
 % -----------------------------
-\newtheoremstyle{purplestyle}{12pt}{12pt}{\itshape}{}{\bfseries\color{Plum}}{.}{.5em}{}
+\newtheoremstyle{purplestyle}{12pt}{12pt}{\itshape}{}{\bfseries\color{CustomColorGreen}}{.}{.5em}{}
 \newtheoremstyle{greenstyle}{12pt}{12pt}{\itshape}{}{\bfseries\color{CustomColorGreen}}{.}{.5em}{}
 
 \theoremstyle{purplestyle}
